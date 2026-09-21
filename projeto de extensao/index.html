@@ -59,6 +59,7 @@
 
                     <input
                         type="email"
+                        id="email"
                         placeholder="E-mail"
                         required
                     >
@@ -70,15 +71,38 @@
 
                     <input
                         type="password"
+                        id="password"
                         placeholder="Senha"
                         required
                     >
 
                 </div>
 
+                <div class="input-box"
+                style="display: none;"
+                id="confirmarSenhaBox">
 
-                <button type="submit">
+                    <input
+                        type="password"
+                        id="confirmarSenha"
+                        placeholder="Confirmar senha"
+                        required
+                    >
+
+                </div>
+
+
+                <button 
+                type="submit"
+                 id="botaoPrincipal">
                     Entrar
+                </button>
+
+                <button 
+                type="button"
+                style="display: none;"
+                 id="botaoVoltar">
+                    Voltar
                 </button>
 
             </form>
@@ -86,12 +110,15 @@
 
             <div class="links">
 
-                <p>
+                <p  id="textoCadastro">
                     Não tem uma conta?
-                    <a href="#">Cadastre-se</a>
+                    <a href="#"
+                    id="botaoCadastro">
+                    Cadastre-se
+                </a>
                 </p>
 
-                <a href="#">
+                <a href="#" id="textoEsqueciSenha">
                     Esqueci minha senha
                 </a>
 
@@ -100,6 +127,9 @@
         </div>
 
     </section>
+
+      <script src="projeto.js"></script>
+
 
 </body>
 
