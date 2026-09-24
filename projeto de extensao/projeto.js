@@ -9,11 +9,13 @@ const textoEsqueciSenha = document.getElementById("textoEsqueciSenha");
 const confirmarSenhaBox = document.getElementById("confirmarSenhaBox");
 const tituloLogin = document.getElementById("tituloLogin");
 const mensagem = document.getElementById("mensagem");
+confirmarSenha.required = false;
 
 
 
 botaoCadastro.addEventListener("click", function () {
 
+    botaoPrincipal.disabled = false;
     console.log("cliquei no cadastro");
 
     confirmarSenhaBox.style.display = "block";
@@ -23,61 +25,89 @@ botaoCadastro.addEventListener("click", function () {
 
     botaoCadastro.style.display = "none";
     botaoVoltar.style.display = "block";
+    confirmarSenha.required = true;
     textoCadastro.style.display = "none";
     textoEsqueciSenha.style.display = "none";
 });
 
-botaoPrincipal.addEventListener("click", async function () {
+botaoPrincipal.addEventListener("click", async function (event) {
+    event.preventDefault();
 
-    if (validarEmail()) {
+    if (tituloLogin.textContent === "Login") {
+        console.log("Login");
 
-        if (password.value.length < 8) {
-            console.log("senha inválida");
-
+        if (localStorage.getItem("emailCadastrado") === email.value) {
+            console.log("email cadastrado");
+            mensagem.textContent = "Login realizado com sucesso!";
         } else {
+            console.log("email não cadastrado");
+            email.style.border = "2px solid red";
+            mensagem.textContent = "Email não cadastrado";
+        }
 
-            if (confirmarSenha.value === "") {
-                console.log("Digite a senha novamente");
+    } else {
+        console.log("não login");
+
+        if (validarEmail()) {
+
+            if (password.value.length < 8) {
+                console.log("A senha deve ter pelo menos 8 caracteres");
+                password.style.border = "2px solid red";
+                mensagem.textContent = "A senha deve ter pelo menos 8 caracteres";
 
             } else {
 
-                if (password.value !== confirmarSenha.value) {
-
-                    console.log("senha inválida");
-
-                    password.value = "";
-                    confirmarSenha.value = "";
-                    password.focus();
+                if (confirmarSenha.value === "") {
+                    console.log("Digite a senha novamente no campo abaixo");
+                    confirmarSenha.style.border = "2px solid red";
+                    mensagem.textContent = "Digite a senha novamente no campo abaixo";
 
                 } else {
 
-                    localStorage.setItem("emailCadastrado", email.value);
+                    if (password.value !== confirmarSenha.value) {
 
-                    const dados = email.value + password.value;
-                    const encoder = new TextEncoder();
-                    const junto = encoder.encode(dados);
+                        console.log("As senhas não coincidem");
+                        mensagem.textContent = "As senhas não coincidem";
 
-                    const hash = await crypto.subtle.digest("SHA-256", junto);
+                        password.value = "";
+                        confirmarSenha.value = "";
+                        password.focus();
 
-                    const bytes = new Uint8Array(hash);
+                    } else {
 
-                    const hashHex = Array.from(bytes)
-                        .map(byte => byte.toString(16).padStart(2, "0"))
-                        .join("");
+                        localStorage.setItem("emailCadastrado", email.value);
 
-                    localStorage.setItem("senhaHash", hashHex);
+                        const dados = email.value + password.value;
+                        const encoder = new TextEncoder();
+                        const junto = encoder.encode(dados);
 
-                    mensagem.textContent = "Cadastro realizado com sucesso!";
-                    voltarLogin();
+                        const hash = await crypto.subtle.digest("SHA-256", junto);
+
+                        const bytes = new Uint8Array(hash);
+
+                        const hashHex = Array.from(bytes)
+                            .map(byte => byte.toString(16).padStart(2, "0"))
+                            .join("");
+
+                        localStorage.setItem("senhaHash", hashHex);
+
+                        mensagem.textContent = "Cadastro realizado com sucesso!";
+                        voltarLogin();
+                    }
                 }
             }
-        }
-
+        } else {
+    email.style.border = "2px solid red";
+    mensagem.textContent = "Digite um e-mail válido";
+}
     }
 
 });
 
-email.addEventListener("blur", function () {
+email.addEventListener("blur", async function () {
+    if (tituloLogin.textContent === "Login") {
+        console.log("dentro do login");
+
     if(validarEmail()){
         console.log("email válido");
         email.style.border = "";
@@ -86,16 +116,31 @@ email.addEventListener("blur", function () {
         if(email.value === localStorage.getItem("emailCadastrado") ){
             email.style.border = "";
         mensagem.textContent = "";
-
-        }else{
+       botaoPrincipal.disabled = true;
+        
+        } else {
             email.style.border = "2px solid red";
             mensagem.textContent = "Email não cadastrado";
         }
 
-    }else{email.style.border = "2px solid red";
+    } else {
+        email.style.border = "2px solid red";
         mensagem.textContent = "Digite um e-mail válido";
+        
     }
-})
+    } else {
+        console.log("fora do cadastro");
+
+        if (validarEmail()) {
+            email.style.border = "";
+            mensagem.textContent = "";
+
+        } else {
+            email.style.border = "2px solid red";
+            mensagem.textContent = "Digite um e-mail válido";
+        }
+    }
+});
 
 password.addEventListener("input", async function () {
 
@@ -129,6 +174,7 @@ if (tituloLogin.textContent === "Login"){
 
 function voltarLogin() {
     textoCadastro.style.display = "block";
+    confirmarSenha.required = false;
     confirmarSenhaBox.style.display = "none";
     textoEsqueciSenha.style.display = "block";
     botaoCadastro.style.display = "block";
@@ -136,6 +182,16 @@ function voltarLogin() {
 
     botaoPrincipal.textContent = "Entrar";
     tituloLogin.textContent = "Login";
+
+     // limpeza
+    email.value = "";
+    password.value = "";
+    confirmarSenha.value = "";
+    email.style.border = "";
+    password.style.border = "";
+    confirmarSenha.style.border = "";
+    mensagem.textContent = "";
+    botaoPrincipal.disabled = true;
 }
 
 botaoVoltar.addEventListener("click", function () {
